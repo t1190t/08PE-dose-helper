@@ -78,7 +78,7 @@
       'Dopamine(新生兒專用)': { dose: 0, volume: 0, fixed: true, fixedValue: 10 },
       'Dopamine(premix)': { dose: 400, volume: 250 },
       'Dopamine(premix對半稀釋)': { dose: 400, volume: 500 },
-      'Dopamine(自己泡製)': { dose: 200, volume: 0 }, // volume will be set dynamically based on weight
+      'Dopamine(自己泡製)': { dose: 200, volume: 0 },
     };
 
     const unitMap = {
@@ -96,23 +96,25 @@
       'Dopamine(自己泡製)': 'mcg/kg/min'
     };
 
-    const inputs = ['drug', 'weight', 'externalDose', 'externalVolume', 'externalRate'];
-    inputs.forEach(id => {
-      document.getElementById(id).addEventListener('input', calculateRate);
-    });
-
     document.getElementById('drug').addEventListener('change', function () {
       const drug = this.value;
       const info = concentrationMap[drug];
+      let concentrationText = '—';
       if (drug === 'Dopamine(premix)') {
-        document.getElementById('concentration').innerText = '一整包400mg in 250mL的，不用泡';
+        concentrationText = '一整包400mg in 250mL的，不用泡';
       } else if (drug === 'Dopamine(自己泡製)') {
-        document.getElementById('concentration').innerText = '大於10kg: 200mg in 125mL，小於等於10kg: 200mg in 250mL';
+        concentrationText = '體重≦10kg：200mg in 250mL；體重＞10kg：200mg in 125mL';
       } else {
-        document.getElementById('concentration').innerText = info.fixed ? '1mL/hr = 10mcg/kg/min' : `${info.dose}${info.unit || 'mg'} in ${info.volume}mL`;
+        concentrationText = info.fixed ? '1mL/hr = 10mcg/kg/min' : `${info.dose}${info.unit || 'mg'} in ${info.volume}mL`;
       }
+      document.getElementById('concentration').innerText = concentrationText;
       document.getElementById('unit').innerText = unitMap[drug] || '—';
       calculateRate();
+    });
+
+    const inputs = ['drug', 'weight', 'externalDose', 'externalVolume', 'externalRate'];
+    inputs.forEach(id => {
+      document.getElementById(id).addEventListener('input', calculateRate);
     });
 
     function calculateRate() {
@@ -141,20 +143,62 @@
         displayUnit = 'ng/kg/min';
       }
 
-      if (drug === 'Dopamine(自己泡製)') {
-        const internalDose = 200;
-        const internalVol = weight > 10 ? 125 : 250;
-        const internalConc = (internalDose * 1000) / internalVol;
-        const suggestedRate = (strength * weight * 60) / internalConc;
+      if (drug === 'Dopamine(新生兒專用)') {
+        const fixedValue = concentrationMap[drug].fixedValue;
+        const suggestedRate = displayStrength / fixedValue;
+        const suggestedDose = weight * 6;
         resultBox.innerHTML = `
-          <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
-          <p>📦 <strong>本院泡法：</strong>200mg in ${internalVol}mL</p>
+          <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${unitMap[drug]}</p>
+          <p>📦 <strong>本院常規會泡成：</strong>1mL/hr = 10mcg/kg/min</p>
+          <p>🔧 <strong>建議泡法：</strong>${suggestedDose.toFixed(1)}mg in 10mL</p>
           <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>
         `;
         return;
       }
 
-      // 其他邏輯照舊...
+      if (drug === 'Dopamine(premix)' || drug === 'Dopamine(premix對半稀釋)') {
+        const internal = concentrationMap[drug];
+        const internalConc = (internal.dose * 1000) / internal.volume;
+        const suggestedRate = (strength * weight * 60) / internalConc;
+        resultBox.innerHTML = `
+          <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
+          <p>📦 <strong>本院泡法：</strong>${drug === 'Dopamine(premix)' ? '一整包400mg in 250mL的，不用泡' : '400mg in 500mL'}</p>
+          <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>
+        `;
+        return;
+      }
+
+      if (drug === 'Dopamine(自己泡製)') {
+        const volume = weight > 10 ? 125 : 250;
+        const dose = concentrationMap[drug].dose;
+        const internalConc = (dose * 1000) / volume;
+        const suggestedRate = (strength * weight * 60) / internalConc;
+        resultBox.innerHTML = `
+          <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
+          <p>📦 <strong>本院泡法：</strong>200mg in ${volume}mL</p>
+          <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>
+        `;
+        return;
+      }
+
+      const internal = concentrationMap[drug];
+      const internalConc = (internal.dose * internalDoseUnit) / internal.volume;
+
+      if (Math.abs(extConc - internalConc) < 0.0001) {
+        resultBox.innerHTML = `
+          <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
+          <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
+          <p>💧 <strong>建議本院 rate：</strong>${extRate.toFixed(2)} mL/hr（與外院相同）</p>
+        `;
+        return;
+      }
+
+      const rate = (strength * weight * 60) / internalConc;
+      resultBox.innerHTML = `
+        <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
+        <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
+        <p>💧 <strong>建議本院 rate：</strong>${rate.toFixed(2)} mL/hr</p>
+      `;
     }
   </script>
 </body>
