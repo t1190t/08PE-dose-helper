@@ -66,6 +66,7 @@
   </div>
 
   <script>
+    // 設定各藥物本院泡法（含濃度、單位、特殊條件）
     const concentrationMap = {
       'Dormicum': { dose: 15, volume: 15 },
       'Nimbex': { dose: 10, volume: 10 },
@@ -81,6 +82,7 @@
       'Dopamine(自己泡製)': { dose: 200, volume: 0 },
     };
 
+    // 各藥物對應的劑量單位（顯示用途）
     const unitMap = {
       'Dormicum': 'mcg/kg/min',
       'Nimbex': 'mcg/kg/min',
@@ -112,11 +114,13 @@
       calculateRate();
     });
 
+    // 監聽所有輸入欄位，只要變動就重新計算
     const inputs = ['drug', 'weight', 'externalDose', 'externalVolume', 'externalRate'];
     inputs.forEach(id => {
       document.getElementById(id).addEventListener('input', calculateRate);
     });
 
+    // ⭐ 核心換算函式
     function calculateRate() {
       const drug = document.getElementById('drug').value;
       const weight = parseFloat(document.getElementById('weight').value);
@@ -133,16 +137,23 @@
       const inputIsMcg = concentrationMap[drug].unit === 'mcg';
       const extDoseUnit = inputIsMcg ? 1 : 1000;
       const internalDoseUnit = inputIsMcg ? 1 : 1000;
+
+      // 外院濃度 = 劑量 ÷ 體積（單位 mcg/mL）
       const extConc = (extDose * extDoseUnit) / extVol;
+
+      // 換算成劑量強度：mcg/kg/min = (濃度 × rate) ÷ 體重 ÷ 60
       let strength = (extConc * extRate) / weight / 60;
 
       let displayUnit = unitMap[drug];
       let displayStrength = strength;
+
+      // PGE1 顯示為 ng/kg/min，要乘 1000
       if (drug === 'PGE1') {
         displayStrength = strength * 1000;
         displayUnit = 'ng/kg/min';
       }
 
+      // 特例：固定換算公式，不進行一般計算
       if (drug === 'Dopamine(新生兒專用)') {
         const fixedValue = concentrationMap[drug].fixedValue;
         const suggestedRate = displayStrength / fixedValue;
@@ -156,6 +167,7 @@
         return;
       }
 
+      // premix 藥物：已知濃度，反推 rate
       if (drug === 'Dopamine(premix)' || drug === 'Dopamine(premix對半稀釋)') {
         const internal = concentrationMap[drug];
         const internalConc = (internal.dose * 1000) / internal.volume;
@@ -168,6 +180,7 @@
         return;
       }
 
+      // 根據體重決定泡法（體重 > 10kg 用125mL）
       if (drug === 'Dopamine(自己泡製)') {
         const volume = weight > 10 ? 125 : 250;
         const dose = concentrationMap[drug].dose;
@@ -184,6 +197,7 @@
       const internal = concentrationMap[drug];
       const internalConc = (internal.dose * internalDoseUnit) / internal.volume;
 
+      // 若外院濃度 = 本院濃度，就不用換算 rate
       if (Math.abs(extConc - internalConc) < 0.0001) {
         resultBox.innerHTML = `
           <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
@@ -193,6 +207,7 @@
         return;
       }
 
+      // 否則反推 rate：rate = (強度 × 體重 × 60) ÷ 本院濃度
       const rate = (strength * weight * 60) / internalConc;
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
