@@ -9,22 +9,20 @@
 <body class="bg-teal-100 min-h-screen flex flex-col">
   <main class="flex-grow flex items-center justify-center">
   <div class="bg-white shadow-lg rounded-2xl p-8 w-full max-w-md">
-    <!-- 標題 -->
     <div class="flex items-center space-x-3 mb-6">
       <div class="bg-teal-500 text-white rounded-full w-8 h-8 flex items-center justify-center text-xl">+</div>
       <h1 class="text-2xl font-bold text-gray-800">藥物換算小幫手</h1>
     </div>
 
-    <!-- changelog 區塊 -->
     <details class="mb-4 text-sm text-gray-600">
       <summary class="cursor-pointer text-gray-800 font-semibold mb-1">📝 更新記錄 (change log)</summary>
-<ul class="list-disc list-inside mt-2">
-  <li><strong>v1.0.0（2025/06/21）：</strong>初版釋出，感謝錢醫師協同規劃與臨床建議。</li>
-<li><strong>v1.0.1（2025/06/22）：</strong>增加「計算過程公式顯示」功能。</li>
+      <ul class="list-disc list-inside mt-2">
+        <li><strong>v1.0.0（2025/06/21）：</strong>初版釋出，感謝錢醫師協同規劃與臨床建議。</li>
+        <li><strong>v1.0.1（2025/06/22）：</strong>增加「計算過程公式顯示」功能。</li>
+        <li><strong>v1.0.2（2026/01/16）：</strong>優化手機版面（新增 in 字樣、調整提示文字位置）、修正公式顯示精度誤差、本院 rate 結果改為小數點後 1 位。</li>
       </ul>
     </details>
 
-    <!-- 藥物選擇 -->
     <label class="block text-gray-700 font-semibold mb-2" for="drug">選擇藥物</label>
     <select id="drug" class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4">
       <option disabled selected>請選擇藥物</option>
@@ -42,41 +40,39 @@
       <option>Dopamine(自己泡製)</option>
     </select>
 
-    <!-- 兒醫常規泡法與單位顯示 -->
     <div class="mb-6">
       <p class="text-sm text-gray-600">本院泡法：<span id="concentration">—</span></p>
       <p class="text-sm text-gray-600">常用劑量單位：<span id="unit">—</span></p>
     </div>
 
-    <!-- 體重輸入 -->
     <label class="block text-gray-700 font-semibold mb-2" for="weight">病童體重（公斤）</label>
     <input id="weight" type="number" placeholder="請輸入體重" class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4" />
 
-    <!-- 外院泡法 -->
     <div class="mb-4">
       <label class="block text-gray-700 font-semibold mb-2">外院泡法</label>
-      <div class="flex space-x-2">
-        <input id="externalDose" type="number" placeholder="mg（PGE1 請用 mcg）" class="w-1/2 border border-gray-300 rounded-lg px-4 py-2" />
-        <input id="externalVolume" type="number" placeholder="mL" class="w-1/2 border border-gray-300 rounded-lg px-4 py-2" />
+      <div class="flex items-center space-x-2">
+        <input id="externalDose" type="number" placeholder="劑量" class="w-full flex-1 border border-gray-300 rounded-lg px-4 py-2" />
+        <span class="text-gray-500 font-bold whitespace-nowrap">in</span>
+        <input id="externalVolume" type="number" placeholder="體積(mL)" class="w-full flex-1 border border-gray-300 rounded-lg px-4 py-2" />
       </div>
+      <p class="text-xs text-gray-500 mt-1">※ 劑量單位預設為 mg（PGE1 請輸入 mcg）</p>
     </div>
 
-    <!-- 外院 流速 -->
     <label class="block text-gray-700 font-semibold mb-2" for="externalRate">外院流速（mL/hr）</label>
     <input id="externalRate" type="number" placeholder="請輸入 rate" class="w-full border border-gray-300 rounded-lg px-4 py-2 mb-6" />
 
-    <!-- 結果區 -->
     <div id="result" class="bg-gray-100 text-gray-700 rounded-lg p-4 min-h-[80px]">
       💡 輸入完成後，這裡會顯示換算後的結果。
     </div>
 
-    <!-- 新增公式顯示區塊 -->
     <div id="formula" class="bg-yellow-50 text-yellow-900 border border-yellow-300 mt-4 p-4 rounded-lg font-mono whitespace-pre-wrap text-sm">
       📐 計算公式將顯示於此。
     </div>
   </div>
 </main>
-<!-- Footer -->
+<footer class="text-center text-xs text-gray-400 sticky bottom-0 w-full bg-teal-100 py-2 border-t border-gray-300">
+  08PE-dose-helper v1.0.2 © 2025 by <a href="mailto:t1190t@gmail.com" class="underline hover:text-gray-600">FKHS</a>
+</footer>
   
   <script>
   const concentrationMap = {
@@ -152,21 +148,19 @@
 
     let displayUnit = unitMap[drug];
     let displayStrength = strength;
-    let formulaText = `📐 計算公式：
-`;
-    formulaText += `外院濃度 = ${extDose}${inputIsMcg ? 'mcg' : 'mg'} ÷ ${extVol}mL = ${(extDose / extVol).toFixed(4)} ${inputIsMcg ? 'mcg' : 'mg'}/mL
-`;
+    let formulaText = `📐 計算公式：\n`;
+    formulaText += `外院濃度 = ${extDose}${inputIsMcg ? 'mcg' : 'mg'} ÷ ${extVol}mL = ${(extDose / extVol).toFixed(4)} ${inputIsMcg ? 'mcg' : 'mg'}/mL\n`;
+    
     if (!inputIsMcg) {
-      formulaText += `轉換為 mcg/mL：${(extDose / extVol).toFixed(4)} × 1000 = ${(extConc).toFixed(2)} mcg/mL
-`;
+      formulaText += `轉換為 mcg/mL：${(extDose / extVol).toFixed(4)} × 1000 = ${(extConc).toFixed(2)} mcg/mL\n`;
     }
-    formulaText += `換算劑量 = ${extConc.toFixed(2)} × ${extRate} ÷ ${weight} ÷ 60 = ${displayStrength.toFixed(2)} ${displayUnit}`;
+    // 修改：將公式中的強度顯示為 4 位小數，避免 0.07 vs 0.0667 的誤差
+    formulaText += `換算劑量 = ${extConc.toFixed(2)} × ${extRate} ÷ ${weight} ÷ 60 = ${displayStrength.toFixed(4)} ${displayUnit}`;
 
     if (drug === 'PGE1') {
       displayStrength = strength * 1000;
       displayUnit = 'ng/kg/min';
-      formulaText += `
-轉換為 ng：${strength.toFixed(2)} × 1000 = ${displayStrength.toFixed(2)} ng/kg/min`;
+      formulaText += `\n轉換為 ng：${strength.toFixed(4)} × 1000 = ${displayStrength.toFixed(2)} ng/kg/min`;
     }
 
     if (drug === 'Dopamine(新生兒專用)') {
@@ -177,9 +171,8 @@
         <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院常規會泡成：</strong>1mL/hr = 10mcg/kg/min</p>
         <p>🔧 <strong>建議泡法：</strong>${suggestedDose.toFixed(1)}mg in 10mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>`;
-      formulaText += `
-換算本院 rate = ${displayStrength.toFixed(2)} ÷ 10 = ${suggestedRate.toFixed(2)} mL/hr`;
+        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+      formulaText += `\n換算本院 rate = ${displayStrength.toFixed(2)} ÷ 10 = ${suggestedRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
     }
@@ -191,11 +184,9 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院泡法：</strong>${drug === 'Dopamine(premix)' ? '一整包400mg in 250mL的，不用泡' : '400mg in 500mL'}</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>`;
-      formulaText += `
-本院濃度 = ${(internal.dose)}mg ÷ ${internal.volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
-      formulaText += `
-換算本院 rate = ${strength.toFixed(2)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(2)} mL/hr`;
+        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+      formulaText += `\n本院濃度 = ${(internal.dose)}mg ÷ ${internal.volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
+      formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`; // 修改：strength 用 4 位，rate 用 1 位
       formulaBox.innerText = formulaText;
       return;
     }
@@ -208,11 +199,9 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院泡法：</strong>200mg in ${volume}mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(2)} mL/hr</p>`;
-      formulaText += `
-本院濃度 = 200mg ÷ ${volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
-      formulaText += `
-換算本院 rate = ${strength.toFixed(2)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(2)} mL/hr`;
+        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+      formulaText += `\n本院濃度 = 200mg ÷ ${volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
+      formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
     }
@@ -223,9 +212,8 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
         <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${extRate.toFixed(2)} mL/hr（與外院相同）</p>`;
-      formulaText += `
-因濃度一致，直接使用原 rate：${extRate.toFixed(2)} mL/hr`;
+        <p>💧 <strong>建議本院 rate：</strong>${extRate.toFixed(1)} mL/hr（與外院相同）</p>`;
+      formulaText += `\n因濃度一致，直接使用原 rate：${extRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
     }
@@ -234,18 +222,12 @@
     resultBox.innerHTML = `
       <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
       <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
-      <p>💧 <strong>建議本院 rate：</strong>${rate.toFixed(2)} mL/hr</p>`;
-    formulaText += `
-本院濃度 = ${internal.dose}${inputIsMcg ? 'mcg' : 'mg'} ÷ ${internal.volume}mL × ${inputIsMcg ? '1' : '1000'} = ${internalConc.toFixed(2)} mcg/mL`;
-    formulaText += `
-換算本院 rate = ${strength.toFixed(2)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${rate.toFixed(2)} mL/hr`;
+      <p>💧 <strong>建議本院 rate：</strong>${rate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+    formulaText += `\n本院濃度 = ${internal.dose}${inputIsMcg ? 'mcg' : 'mg'} ÷ ${internal.volume}mL × ${inputIsMcg ? '1' : '1000'} = ${internalConc.toFixed(2)} mcg/mL`;
+    // 修改：公式中強度顯示 4 位，結果顯示 1 位
+    formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${rate.toFixed(1)} mL/hr`;
     formulaBox.innerText = formulaText;
   }
 </script>
-<footer class="text-center text-xs text-gray-400 sticky bottom-0 w-full bg-teal-100 py-2 border-t border-gray-300">
-  08PE-dose-helper v1.0.1 © 2025 by <a href="mailto:t1190t@gmail.com" class="underline hover:text-gray-600">FKHS</a>
-</footer>
 </body>
 </html>
-
-
