@@ -76,27 +76,15 @@
 </main>
 <footer class="text-center text-xs text-gray-400 sticky bottom-0 w-full bg-teal-100 py-2 border-t border-gray-300">
   <div class="mb-1">08PE-dose-helper v1.0.3 © 2025 by <a href="mailto:t1190t@gmail.com" class="underline hover:text-gray-600">FKHS</a></div>
-  <div id="counter-container">
-    本小幫手已累積服務 <span id="visit-count" class="font-bold text-gray-500">...</span> 人次
+ <div id="counter-container">
+    <span id="busuanzi_container_site_pv" style="display:none">
+      本小幫手已累積服務 <span id="busuanzi_value_site_pv" class="font-bold text-gray-500">--</span> 人次
+    </span>
   </div>
 </footer>
   
   <script>
-  // --- 計數器邏輯 ---
-  // 使用 CountAPI，Namespace 設為 '08pe-dose-helper-global'，Key 設為 'visits'
-  (function updateCounter() {
-    const counterElement = document.getElementById('visit-count');
-    fetch('https://api.countapi.xyz/hit/08pe-dose-helper-global/visits')
-      .then(response => response.json())
-      .then(data => {
-        counterElement.innerText = data.value;
-      })
-      .catch(error => {
-        console.error('計數器載入失敗:', error);
-        counterElement.innerText = '(N/A)'; // 若服務掛點顯示 N/A
-      });
-  })();
-
+  
   const concentrationMap = {
     'Dormicum': { dose: 15, volume: 15 },
     'Nimbex': { dose: 10, volume: 10 },
@@ -252,6 +240,7 @@
 </script>
 </body>
 </html>
+
 
 
 
