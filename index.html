@@ -19,8 +19,8 @@
       <ul class="list-disc list-inside mt-2">
         <li><strong>v1.0.0（2025/06/21）：</strong>初版釋出，感謝錢醫師協同規劃與臨床建議。</li>
         <li><strong>v1.0.1（2025/06/22）：</strong>增加「計算過程公式顯示」功能。</li>
-        <li><strong>v1.0.2（2026/01/16）：</strong>優化手機版面（新增 in 字樣、調整提示文字位置）、修正公式顯示精度誤差、本院流速 結果改為小數點後 1 位。</li>
-      </ul>
+        <li><strong>v1.0.2（2026/01/16）：</strong>優化手機版面、修正公式顯示精度、本院流速結果小數點位數調整。</li>
+             </ul>
     </details>
 
     <label class="block text-gray-700 font-semibold mb-2" for="drug">選擇藥物</label>
@@ -71,10 +71,29 @@
   </div>
 </main>
 <footer class="text-center text-xs text-gray-400 sticky bottom-0 w-full bg-teal-100 py-2 border-t border-gray-300">
-  08PE-dose-helper v1.0.2 © 2025 by <a href="mailto:t1190t@gmail.com" class="underline hover:text-gray-600">FKHS</a>
+  <div class="mb-1">08PE-dose-helper v1.0.3 © 2025 by <a href="mailto:t1190t@gmail.com" class="underline hover:text-gray-600">FKHS</a></div>
+  <div id="counter-container">
+    本小幫手已累積服務 <span id="visit-count" class="font-bold text-gray-500">...</span> 人次
+  </div>
 </footer>
   
   <script>
+  // --- 計數器邏輯 ---
+  // 使用 CountAPI，Namespace 設為 '08pe-dose-helper-global'，Key 設為 'visits'
+  // 每次載入頁面時觸發 +1
+  (function updateCounter() {
+    const counterElement = document.getElementById('visit-count');
+    fetch('https://api.countapi.xyz/hit/08pe-dose-helper-global/visits')
+      .then(response => response.json())
+      .then(data => {
+        counterElement.innerText = data.value;
+      })
+      .catch(error => {
+        console.error('計數器載入失敗:', error);
+        counterElement.innerText = '(N/A)'; // 若服務掛點顯示 N/A
+      });
+  })();
+
   const concentrationMap = {
     'Dormicum': { dose: 15, volume: 15 },
     'Nimbex': { dose: 10, volume: 10 },
@@ -231,4 +250,3 @@
 </script>
 </body>
 </html>
-
