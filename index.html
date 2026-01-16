@@ -19,7 +19,7 @@
       <ul class="list-disc list-inside mt-2">
         <li><strong>v1.0.0（2025/06/21）：</strong>初版釋出，感謝錢醫師協同規劃與臨床建議。</li>
         <li><strong>v1.0.1（2025/06/22）：</strong>增加「計算過程公式顯示」功能。</li>
-        <li><strong>v1.0.2（2026/01/16）：</strong>優化手機版面（新增 in 字樣、調整提示文字位置）、修正公式顯示精度誤差、本院 rate 結果改為小數點後 1 位。</li>
+        <li><strong>v1.0.2（2026/01/16）：</strong>優化手機版面（新增 in 字樣、調整提示文字位置）、修正公式顯示精度誤差、本院流速 結果改為小數點後 1 位。</li>
       </ul>
     </details>
 
@@ -171,8 +171,8 @@
         <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院常規會泡成：</strong>1mL/hr = 10mcg/kg/min</p>
         <p>🔧 <strong>建議泡法：</strong>${suggestedDose.toFixed(1)}mg in 10mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
-      formulaText += `\n換算本院 rate = ${displayStrength.toFixed(2)} ÷ 10 = ${suggestedRate.toFixed(1)} mL/hr`;
+        <p>💧 <strong>建議本院流速：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+      formulaText += `\n換算本院流速 = ${displayStrength.toFixed(2)} ÷ 10 = ${suggestedRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
     }
@@ -184,9 +184,9 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院泡法：</strong>${drug === 'Dopamine(premix)' ? '一整包400mg in 250mL的，不用泡' : '400mg in 500mL'}</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+        <p>💧 <strong>建議本院流速：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
       formulaText += `\n本院濃度 = ${(internal.dose)}mg ÷ ${internal.volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
-      formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`; // 修改：strength 用 4 位，rate 用 1 位
+      formulaText += `\n換算本院流速 = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`; // 修改：strength 用 4 位，rate 用 1 位
       formulaBox.innerText = formulaText;
       return;
     }
@@ -199,9 +199,9 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${strength.toFixed(2)} ${unitMap[drug]}</p>
         <p>📦 <strong>本院泡法：</strong>200mg in ${volume}mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+        <p>💧 <strong>建議本院流速：</strong>${suggestedRate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
       formulaText += `\n本院濃度 = 200mg ÷ ${volume}mL × 1000 = ${internalConc.toFixed(2)} mcg/mL`;
-      formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`;
+      formulaText += `\n換算本院流速 = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${suggestedRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
     }
@@ -212,7 +212,7 @@
       resultBox.innerHTML = `
         <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
         <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
-        <p>💧 <strong>建議本院 rate：</strong>${extRate.toFixed(1)} mL/hr（與外院相同）</p>`;
+        <p>💧 <strong>建議本院流速：</strong>${extRate.toFixed(1)} mL/hr（與外院相同）</p>`;
       formulaText += `\n因濃度一致，直接使用原 rate：${extRate.toFixed(1)} mL/hr`;
       formulaBox.innerText = formulaText;
       return;
@@ -222,12 +222,13 @@
     resultBox.innerHTML = `
       <p>💡 <strong>換算後劑量：</strong>${displayStrength.toFixed(2)} ${displayUnit}</p>
       <p>📦 <strong>本院泡法：</strong>${internal.dose}${internal.unit || 'mg'} in ${internal.volume}mL</p>
-      <p>💧 <strong>建議本院 rate：</strong>${rate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
+      <p>💧 <strong>建議本院流速：</strong>${rate.toFixed(1)} mL/hr</p>`; // 修改：rate 改為小數點 1 位
     formulaText += `\n本院濃度 = ${internal.dose}${inputIsMcg ? 'mcg' : 'mg'} ÷ ${internal.volume}mL × ${inputIsMcg ? '1' : '1000'} = ${internalConc.toFixed(2)} mcg/mL`;
     // 修改：公式中強度顯示 4 位，結果顯示 1 位
-    formulaText += `\n換算本院 rate = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${rate.toFixed(1)} mL/hr`;
+    formulaText += `\n換算本院流速 = ${strength.toFixed(4)} × ${weight} × 60 ÷ ${internalConc.toFixed(2)} = ${rate.toFixed(1)} mL/hr`;
     formulaBox.innerText = formulaText;
   }
 </script>
 </body>
 </html>
+
